@@ -1,0 +1,16 @@
+{
+  "name": "quiz-app",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "install": "npm install --prefix public && npm install --prefix server",
+    "build": "npm run build --prefix public",
+    "start": "npm start --prefix server",
+    "dev:client": "npm run dev --prefix public",
+    "dev:server": "npm run dev --prefix server"
+  },
+  "workspaces": [
+    "public",
+    "server"
+  ]
+}
