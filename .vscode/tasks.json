@@ -1,0 +1,34 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Run Frontend",
+      "type": "shell",
+      "command": "npm", // Replace with `npm` or `yarn` if you're not using pnpm
+      "args": ["run", "dev"],
+      "group": "build",
+      "problemMatcher": [],
+      "isBackground": true,
+      "options": {
+        "cwd": "${workspaceFolder}/public" // Adjust this path to your frontend folder
+      }
+    },
+    {
+      "label": "Run Backend",
+      "type": "shell",
+      "command": "npm", // Replace with `npm` or `yarn` if you're not using pnpm
+      "args": ["run", "dev"],
+      "group": "build",
+      "problemMatcher": [],
+      "isBackground": true,
+      "options": {
+        "cwd": "${workspaceFolder}/server" // Adjust this path to your backend folder
+      }
+    },
+    {
+      "label": "Run Frontend and Backend",
+      "dependsOn": ["Run Frontend", "Run Backend"],
+      "group": "build"
+    }
+  ]
+}
