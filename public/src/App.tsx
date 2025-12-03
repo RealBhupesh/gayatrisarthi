@@ -16,6 +16,7 @@ import Quiz from "./pages/Quiz";
 import Footer from "./components/Footer";
 import AdminDashboard from "./pages/AdminDashboard";
 import Preferences from "./pages/Preferences";
+import Profile from "./pages/Profile";
 import QuizCategoriesPage from "./pages/QuizCategoriesPage";
 
 function App() {
@@ -47,6 +48,7 @@ function App() {
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/quiz" element={<Quiz />} />
               <Route path="/assignment" element={<Assignment />} />
+              <Route path="/profile" element={<Profile />} />
 
               <Route
                 path="/leaderboard/:quizId"

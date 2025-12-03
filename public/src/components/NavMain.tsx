@@ -30,6 +30,8 @@ const NavMain: React.FC<NavMainProps> = ({ userData, handleLogout, handleMenuCli
         switch (option) {
             case "Dashboard":
                 return "/dashboard";
+            case "Profile":
+                return "/profile";
             case "Global Leaderboard":
                 return "/leaderboard";
             case "Preferences":
@@ -51,6 +53,7 @@ const NavMain: React.FC<NavMainProps> = ({ userData, handleLogout, handleMenuCli
         // Core links available for authenticated users.
         const coreLinks = [
             "Dashboard",
+            "Profile",
             "Global Leaderboard",
             "Quiz Categories",
             "Preferences",

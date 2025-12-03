@@ -292,6 +292,99 @@ userRouter.get("/profile", verifyToken, async (req, res) => {
   }
 });
 
+userRouter.get("/profile/stats", verifyToken, async (req, res) => {
+  try {
+    const userId = req.user.userId;
+    const QuizHistory = require("../models/quizAttempt");
+
+    const user = await Users.findOne({ userId }).select("-password");
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        data: null,
+        message: "User not found",
+      });
+    }
+
+    const rankData = await Score.findOne({ userId });
+    const totalScore = rankData ? rankData.score : 0;
+
+    const totalUsersWithScore = await Score.countDocuments({ score: { $gt: 0 } });
+    const rank = rankData
+      ? await Score.countDocuments({ score: { $gt: totalScore } }) + 1
+      : null;
+
+    const quizAttempts = await QuizHistory.find({ userId });
+    const totalAttempts = quizAttempts.length;
+
+    const uniqueQuizzes = [...new Set(quizAttempts.map(attempt => attempt.quizId))];
+    const totalUniqueQuizzes = uniqueQuizzes.length;
+
+    const averageScore = totalAttempts > 0
+      ? (quizAttempts.reduce((sum, attempt) => sum + attempt.score, 0) / totalAttempts).toFixed(2)
+      : 0;
+
+    const totalTimeTaken = quizAttempts.reduce((sum, attempt) => sum + attempt.timeTaken, 0);
+    const averageTimeTaken = totalAttempts > 0
+      ? Math.round(totalTimeTaken / totalAttempts)
+      : 0;
+
+    const subjectStats = quizAttempts.reduce((acc, attempt) => {
+      if (!acc[attempt.subject]) {
+        acc[attempt.subject] = { count: 0, totalScore: 0, totalQuestions: 0 };
+      }
+      acc[attempt.subject].count++;
+      acc[attempt.subject].totalScore += attempt.score;
+      acc[attempt.subject].totalQuestions += attempt.numberOfQues;
+      return acc;
+    }, {});
+
+    const subjectPerformance = Object.entries(subjectStats).map(([subject, stats]) => ({
+      subject,
+      attempts: stats.count,
+      averageScore: (stats.totalScore / stats.count).toFixed(2),
+      accuracy: ((stats.totalScore / stats.totalQuestions) * 100).toFixed(1),
+    }));
+
+    const recentAttempts = await QuizHistory.find({ userId })
+      .sort({ createdAt: -1 })
+      .limit(10);
+
+    const percentile = rank && totalUsersWithScore > 0
+      ? (((totalUsersWithScore - rank + 1) / totalUsersWithScore) * 100).toFixed(1)
+      : null;
+
+    return res.status(200).json({
+      success: true,
+      data: {
+        user,
+        rankData: {
+          rank,
+          totalScore,
+          percentile,
+          totalUsers: totalUsersWithScore,
+        },
+        statistics: {
+          totalAttempts,
+          totalUniqueQuizzes,
+          averageScore,
+          averageTimeTaken,
+          subjectPerformance,
+        },
+        recentAttempts,
+      },
+      message: "Profile statistics retrieved successfully",
+    });
+  } catch (error) {
+    console.error("Error fetching profile stats:", error);
+    return res.status(500).json({
+      success: false,
+      data: null,
+      message: "Server error, please try again later",
+    });
+  }
+});
+
 // Simple version - just updates role to admin
 userRouter.put("/make-admin", async (req, res) => {
   const { email } = req.body;
